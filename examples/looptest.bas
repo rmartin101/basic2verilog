@@ -1,0 +1,7 @@
+
+10 LET N = 10
+15 LET S = 3 
+20 FOR I = 1 TO N STEP S
+30 PRINT "I is ", I
+40 NEXT I
+50 END

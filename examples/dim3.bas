@@ -1,0 +1,11 @@
+5 DIM A(4,12)
+6 LET MAXX = 4
+7 LET MAXY = 12
+10 FOR I = 1 TO MAXX
+20 FOR J = 1 TO MAXY
+30   LET A(I,J) = I + J
+35   PRINT "I is: ",I," J is: ",J, " A(I,J) is: ",A(I,J)
+40 NEXT J
+50 NEXT I
+100 END
+

@@ -1,0 +1,7 @@
+10 DIM A(10)
+20 LET Y = 1
+30 FOR I = 1 TO 10
+40 LET A(I) = I+I
+50 PRINT "A:",I," is: ",A(I)
+60 NEXT I
+70 END

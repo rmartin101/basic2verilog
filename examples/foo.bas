@@ -1,0 +1,4 @@
+20 LET S = "HELLO"
+30 PRINT "HELLO ",S
+40 END
+

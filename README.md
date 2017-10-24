@@ -10,3 +10,6 @@ The compiler is still quite rough and may have bus. You will need iverilog versi
 run the examples. The compiler should generate synthesizable code. 
 
 To compile, go to the examples directory and run make.
+
+To run, you need to execute vvp manually.
+

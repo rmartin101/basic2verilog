@@ -16,6 +16,7 @@ module basic();
  	 reg clk ; 
  	 reg [63:0] cycle_count ; 
  	 reg c_bit_00000_start ; 
+ 	 reg c_bit_00005_bubble ; 
  	 reg c_bit_00010_00_assign ; 
  	 reg c_bit_00010_01_bubble ; 
  	 reg c_bit_00015_dim ; 
@@ -253,9 +254,18 @@ if (c_bit_00260_print == 1) begin
 end 
  
  // -------- Control Flow Section  ----------
-always @(posedge clk) begin // control for line 00010_00_assign 
+always @(posedge clk) begin // control for line 00005_bubble 
  	 if ( (c_bit_00000_start == 1) ) begin 
-	 c_bit_00000_start <= 0;   	 	 c_bit_00010_00_assign <= 1 ;  
+	 c_bit_00000_start <= 0;   	 	 c_bit_00005_bubble <= 1 ;  
+ 	 end 
+ 	 else  begin 
+ 	 	 c_bit_00005_bubble <= 0 ; 
+ 	 end
+end // end @ posedge clk 
+ 
+always @(posedge clk) begin // control for line 00010_00_assign 
+ 	 if ( (c_bit_00005_bubble == 1) ) begin 
+ 	 	 c_bit_00010_00_assign <= 1 ;  
  	 end 
  	 else  begin 
  	 	 c_bit_00010_00_assign <= 0 ; 

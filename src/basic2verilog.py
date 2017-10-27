@@ -706,9 +706,14 @@ class BasicInterpreter:
             for i in range(len(all_my_preds)-1):
                     c = all_my_preds[i]
                     entry_verilog = entry_verilog + "(" + c + " == 1) || "
-            c = all_my_preds[len(all_my_preds)-1]
-            entry_verilog = entry_verilog + "(" + c + " == 1) "
-            print >> fd, " \t if (" + entry_verilog + ") begin "
+
+            if ( len(all_my_preds) >0 ):  # a statement could have not predecessors, dead code
+                c = all_my_preds[len(all_my_preds)-1]
+                entry_verilog = entry_verilog + "(" + c + " == 1) "
+            else:
+                entry_verilog = entry_verilog + "(" + "0" + " == 1) "
+                
+            print >> fd, " \t if (" + entry_verilog + ") begin "                
             if ( (lineno >= debug_low ) and (lineno <= debug_high)):
                 print >> fd, "\t $display (\"VERILOG_DEBUG: cycle_count: %d at : %s\",cycle_count," + "\""+ name + "\" ); "
 

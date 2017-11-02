@@ -260,6 +260,8 @@ class BasicInterpreter:
                 return -self.eval(expr[2])
             elif expr[1] == '~':
                 return ~self.eval(expr[2])
+            elif expr[1] == 'NOT':
+                return (not self.eval(expr[2]))
         elif etype == 'BINOP':
             if expr[1] == '+':
                 return (self.eval(expr[2])) + (self.eval(expr[3]))
@@ -283,6 +285,19 @@ class BasicInterpreter:
                 return self.eval(expr[2]) ^ self.eval(expr[3])
             elif expr[1] == '%':
                 return self.eval(expr[2]) % self.eval(expr[3])
+            elif expr[1] == 'AND':
+                return self.eval(expr[2]) and self.eval(expr[3])
+            elif expr[1] == 'OR':
+                return self.eval(expr[2]) or self.eval(expr[3])
+            elif expr[1] == 'EQUALSEQUALS':
+                if self.eval(expr[2]) == self.eval(expr[3]):
+                    return 1
+                else:
+                    return 0 
+            else:
+                print "UNKNOWN OPERATOR IN EXPRESSION", expr
+                return 0
+            
         elif etype == 'VAR':
             var, dim1, dim2 = expr[1]
             if not dim1 and not dim2:
@@ -321,45 +336,69 @@ class BasicInterpreter:
 
     # Evaluate a relational expression
     def releval(self, expr):
-        etype = expr[1]
-        lhs = np.int32(self.eval(expr[2]))
-        rhs = np.int32(self.eval(expr[3])) 
-        if etype == '<':
-            if lhs < rhs:
-                return 1
+        etype = expr[0]        
+        if etype == 'GROUP':
+            return self.releval(expr[1])
+        elif etype == 'UNARY':
+            if expr[1] == 'NOT':
+                if (self.eval(expr[1]) == 0):
+                    return 0
+                else:
+                    return 1 
             else:
+                print 'BAD UNARY OPERATOR IN RELEXPR:',expr
                 return 0
+        elif etype == 'BINOP':
+            lhs = np.int32(self.eval(expr[2]))
+            rhs = np.int32(self.eval(expr[3])) 
+            if etype == '<':
+                if lhs < rhs:
+                    return 1
+                else:
+                    return 0
+            elif etype == '<=':
+                if lhs <= rhs:
+                    return 1
+                else:
+                    return 0
 
-        elif etype == '<=':
-            if lhs <= rhs:
-                return 1
+            elif etype == '>':
+                if lhs > rhs:
+                    return 1
+                else:
+                    return 0
+
+            elif etype == '>=':
+                if lhs >= rhs:
+                    return 1
+                else:
+                    return 0
+
+            elif etype == '=':
+                if lhs == rhs:
+                    return 1
+                else:
+                    return 0
+
+            elif etype == '<>':
+                if lhs != rhs:
+                    return 1
+                else:
+                    return 0
+            elif etype == 'AND':
+                if lhs and rhs:
+                    return 1
+                else:
+                    return 0
+            elif etype == 'OR':
+                if lhs or rhs:
+                    return 1
+                else:
+                    return 0
             else:
-                return 0
-
-        elif etype == '>':
-            if lhs > rhs:
-                return 1
-            else:
-                return 0
-
-        elif etype == '>=':
-            if lhs >= rhs:
-                return 1
-            else:
-                return 0
-
-        elif etype == '=':
-            if lhs == rhs:
-                return 1
-            else:
-                return 0
-
-        elif etype == '<>':
-            if lhs != rhs:
-                return 1
-            else:
-                return 0
-
+                print "UNKNOWN OPERATOR IN RELEXPR", expr
+                return 0 
+                
     # Assignment
     def assign(self, target, value):
         var, dim1, dim2 = target
@@ -1705,26 +1744,50 @@ class BasicInterpreter:
                 return "-" + self.expr_str(expr[2])
             elif expr[1] == '~':
                 return "~" + self.expr_str(expr[2])
+            elif expr[1] == 'NOT':
+                return "!" + self.expr_str(expr[2])
+
         elif etype == 'BINOP':
             global inside_relational_expression            
             if ( (expr[1] == '=') and inside_relational_expression == True) :
                 return "%s %s %s" % (self.expr_str(expr[2]), "==", self.expr_str(expr[3]))
+            elif (expr[1] == 'AND'): 
+                return "%s %s %s" % (self.expr_str(expr[2]), '&&', self.expr_str(expr[3]))
+            elif (expr[1] == 'OR'): 
+                return "%s %s %s" % (self.expr_str(expr[2]), '||', self.expr_str(expr[3]))
+            elif (expr[1] == 'NOT'):             
+                return "%s %s %s" % (self.expr_str(expr[2]), '!', self.expr_str(expr[3]))
             else:
-                return "%s %s %s" % (self.expr_str(expr[2]), expr[1], self.expr_str(expr[3]))
-            
+                return "%s %s %s" % (self.expr_str(expr[2]), expr[1], self.expr_str(expr[3]))                
         elif etype == 'VAR':
             if (self.inside_verilog_str == True):
                 return self.verilog_var_str(expr[1])
             else:
                 return self.var_str(expr[1])
-            
+        
     def relexpr_str(self, expr):
         global inside_relational_expression
+        etype = expr[0]
+
+        if etype == 'UNARY':
+            if expr[1] == 'NOT':
+                return "!" + self.expr_str(expr[2])
+            else:
+                print "error unknown relative expression unary operator"
+
+        if etype == 'GROUP':
+            return "(%s)" % self.expr_str(expr[1])
         
         if ( (expr[1] == '=') and (inside_relational_expression == True)) :
             return "%s %s %s" % (self.expr_str(expr[2]), "==", self.expr_str(expr[3]))
+        elif (expr[1] == 'AND'): 
+            return "%s %s %s" % (self.expr_str(expr[2]), '&&', self.expr_str(expr[3]))
+        elif (expr[1] == 'OR'): 
+            return "%s %s %s" % (self.expr_str(expr[2]), '||', self.expr_str(expr[3]))
+        elif (expr[1] == 'NOT'):             
+            return "%s %s %s" % (self.expr_str(expr[2]), '!', self.expr_str(expr[3]))
         else:
-            return "%s %s %s" % (self.expr_str(expr[2]), expr[1], self.expr_str(expr[3]))
+            return "%s %s %s" % (self.expr_str(expr[2]), expr[1], self.expr_str(expr[3]))            
 
     def var_str(self, var):
         varname, dim1, dim2 = var

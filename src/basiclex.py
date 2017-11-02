@@ -7,14 +7,15 @@ from ply import *
 
 keywords = (
    'LET', 'READ', 'DATA', 'PRINT', 'GOTO', 'IF', 'THEN', 'FOR', 'NEXT', 'TO', 'STEP',
-    'END', 'STOP', 'DEF', 'GOSUB', 'DIM', 'REM', 'RETURN', 'RUN', 'LIST', 'NEW', 'FIFO'
+    'END', 'STOP', 'DEF', 'GOSUB', 'DIM', 'REM', 'RETURN', 'RUN', 'LIST', 'NEW', 'FIFO',
+    'AND', 'OR', 'NOT'
 )
 
 tokens = keywords + (
-    'EQUALS', 'PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'POWER',
+    'EQUALS', 'PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'POWER', 
     'LPAREN', 'RPAREN', 'LT', 'LE', 'GT', 'GE', 'NE',
     'COMMA', 'SEMI', 'INTEGER', 'HEX', 'FLOAT', 'STRING',
-    'ID', 'NEWLINE', "SL", "SR" , "BAND", "BOR", "BNOT", "XOR", "MOD"
+    'ID', 'NEWLINE', 'SL', 'SR' , 'BAND', 'BOR', 'BNOT', 'XOR', 'MOD','EQUALSEQUALS',
 )
 
 t_ignore = ' \t'
@@ -56,6 +57,7 @@ t_BOR = r'\|'
 t_BNOT = r'~'
 t_XOR = r'\^'
 t_MOD = r'%'
+t_EQUALSEQUALS = r'=='
 
 def t_NEWLINE(t):
     r'\n'

@@ -9,6 +9,7 @@ tokens = basiclex.tokens
 precedence = (
     ('left', 'PLUS', 'MINUS'),
     ('left', 'TIMES', 'DIVIDE', 'MOD'),
+    ('left', 'AND', 'OR', 'NOT','EQUALSEQUALS'),
     ('left', 'POWER'),
     ('right', 'UMINUS'),
     ('left', 'SR', 'SL'),
@@ -340,6 +341,15 @@ def p_expr_binary(p):
             | expr MINUS expr
             | expr TIMES expr
             | expr DIVIDE expr
+            | expr LT expr
+            | expr LE expr
+            | expr GT expr
+            | expr GE expr
+            | expr EQUALS expr
+            | expr NE expr
+            | expr AND expr
+            | expr OR expr
+            | expr EQUALSEQUALS expr
             | expr SR expr 
             | expr SL expr 
             | expr BAND expr 
@@ -347,7 +357,6 @@ def p_expr_binary(p):
             | expr XOR expr 
             | expr MOD expr
             | expr POWER expr'''
-
     p[0] = ('BINOP', p[2], p[1], p[3])
 
 
@@ -371,7 +380,8 @@ def p_expr_group(p):
 
 def p_expr_unary(p):
     '''expr : MINUS expr %prec UMINUS
-            | BNOT  expr %prec BNOT'''
+            | BNOT  expr %prec BNOT
+            | NOT  expr %prec NOT'''
     p[0] = ('UNARY', p[1], p[2])
 
 # Relational expressions
@@ -383,9 +393,20 @@ def p_relexpr(p):
                | expr GT expr
                | expr GE expr
                | expr EQUALS expr
-               | expr NE expr'''
+               | expr NE expr
+               | expr AND expr
+               | expr OR expr
+               | expr EQUALSEQUALS expr'''
     p[0] = ('RELOP', p[2], p[1], p[3])
 
+def p_relexpr_group(p):
+    '''relexpr : LPAREN expr RPAREN'''
+    p[0] = ('GROUP', p[2])
+
+def p_relexpr_unary(p):
+    '''relexpr : NOT expr %prec NOT'''
+    p[0] = ('UNARY', p[1], p[2])
+    
 # Variables
 
 

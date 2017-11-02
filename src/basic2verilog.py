@@ -289,7 +289,7 @@ class BasicInterpreter:
                 return self.eval(expr[2]) and self.eval(expr[3])
             elif expr[1] == 'OR':
                 return self.eval(expr[2]) or self.eval(expr[3])
-            elif expr[1] == 'EQUALSEQUALS':
+            elif expr[1] == '==':
                 if self.eval(expr[2]) == self.eval(expr[3]):
                     return 1
                 else:
@@ -349,56 +349,120 @@ class BasicInterpreter:
                 print 'BAD UNARY OPERATOR IN RELEXPR:',expr
                 return 0
         elif etype == 'BINOP':
+            ntype = expr[1]
             lhs = np.int32(self.eval(expr[2]))
             rhs = np.int32(self.eval(expr[3])) 
-            if etype == '<':
+            if ntype == '<':
                 if lhs < rhs:
                     return 1
                 else:
                     return 0
-            elif etype == '<=':
+            elif ntype == '<=':
                 if lhs <= rhs:
                     return 1
                 else:
                     return 0
 
-            elif etype == '>':
+            elif ntype == '>':
                 if lhs > rhs:
                     return 1
                 else:
                     return 0
 
-            elif etype == '>=':
+            elif ntype == '>=':
                 if lhs >= rhs:
                     return 1
                 else:
                     return 0
 
-            elif etype == '=':
+            elif ntype == '=':
                 if lhs == rhs:
                     return 1
                 else:
                     return 0
 
-            elif etype == '<>':
+            elif ntype == '<>':
                 if lhs != rhs:
                     return 1
                 else:
                     return 0
-            elif etype == 'AND':
+            elif ntype == 'AND':
                 if lhs and rhs:
                     return 1
                 else:
                     return 0
-            elif etype == 'OR':
+            elif ntype == 'OR':
                 if lhs or rhs:
                     return 1
                 else:
                     return 0
+            elif ntype == '==':
+                if lhs == rhs:
+                    return 1
+                else:
+                    return 0                
             else:
                 print "UNKNOWN OPERATOR IN RELEXPR", expr
                 return 0 
-                
+        elif etype == 'RELOP':
+            ntype = expr[1]
+            lhs = np.int32(self.eval(expr[2]))
+            rhs = np.int32(self.eval(expr[3])) 
+            if ntype == '<':
+                if lhs < rhs:
+                    return 1
+                else:
+                    return 0
+            elif ntype == '<=':
+                if lhs <= rhs:
+                    return 1
+                else:
+                    return 0
+
+            elif ntype == '>':
+                if lhs > rhs:
+                    return 1
+                else:
+                    return 0
+
+            elif ntype == '>=':
+                if lhs >= rhs:
+                    return 1
+                else:
+                    return 0
+
+            elif ntype == '=':
+                if lhs == rhs:
+                    return 1
+                else:
+                    return 0
+
+            elif ntype == '<>':
+                if lhs != rhs:
+                    return 1
+                else:
+                    return 0
+            elif ntype == 'AND':
+                if lhs and rhs:
+                    return 1
+                else:
+                    return 0
+            elif ntype == 'OR':
+                if lhs or rhs:
+                    return 1
+                else:
+                    return 0
+            elif ntype == '==':
+                if lhs == rhs:
+                    return 1
+                else:
+                    return 0                
+            else:
+                print "UNKNOWN OPERATOR IN RELEXPR", expr
+                return 0
+        else:
+            print "UNKNOWN TYPE OF RELATIVE OPERATOR:", expr
+            
     # Assignment
     def assign(self, target, value):
         var, dim1, dim2 = target
@@ -1377,6 +1441,9 @@ class BasicInterpreter:
             elif op == 'GOSUB':
                 targetlineno = instr[1]
                 t = self.find_statement_index(all_statements,targetlineno)
+                if (t == None):
+                    print "Missing gosub target line at line:", lineno
+                    sys.exit(-1)
                 targetstatement = all_statements[t]
                 all_gosub_statements.append(statement) 
                 statement.successors.append(targetstatement)
@@ -1757,6 +1824,8 @@ class BasicInterpreter:
                 return "%s %s %s" % (self.expr_str(expr[2]), '||', self.expr_str(expr[3]))
             elif (expr[1] == 'NOT'):             
                 return "%s %s %s" % (self.expr_str(expr[2]), '!', self.expr_str(expr[3]))
+            elif (expr[1] == '<>'):             
+                return "%s %s %s" % (self.expr_str(expr[2]), '!=', self.expr_str(expr[3]))            
             else:
                 return "%s %s %s" % (self.expr_str(expr[2]), expr[1], self.expr_str(expr[3]))                
         elif etype == 'VAR':
@@ -1786,6 +1855,8 @@ class BasicInterpreter:
             return "%s %s %s" % (self.expr_str(expr[2]), '||', self.expr_str(expr[3]))
         elif (expr[1] == 'NOT'):             
             return "%s %s %s" % (self.expr_str(expr[2]), '!', self.expr_str(expr[3]))
+        elif (expr[1] == '<>'):             
+                return "%s %s %s" % (self.expr_str(expr[2]), '!=', self.expr_str(expr[3]))            
         else:
             return "%s %s %s" % (self.expr_str(expr[2]), expr[1], self.expr_str(expr[3]))            
 

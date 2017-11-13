@@ -285,6 +285,26 @@ class BasicInterpreter:
                 return self.eval(expr[2]) ^ self.eval(expr[3])
             elif expr[1] == '%':
                 return self.eval(expr[2]) % self.eval(expr[3])
+            elif expr[1] == '<':
+                if (self.eval(expr[2]) < self.eval(expr[3]) == True):
+                    return 1
+                else:
+                    return 0
+            elif expr[1] == '<=':
+                if (self.eval(expr[2]) <= self.eval(expr[3]) == True):
+                    return 1
+                else:
+                    return 0
+            elif expr[1] == '>':
+                if (self.eval(expr[2]) > self.eval(expr[3]) == True):
+                    return 1
+                else:
+                    return 0
+            elif expr[1] == '>=':
+                if (self.eval(expr[2]) >= self.eval(expr[3]) == True):
+                    return 1
+                else:
+                    return 0
             elif expr[1] == 'AND':
                 return self.eval(expr[2]) and self.eval(expr[3])
             elif expr[1] == 'OR':
@@ -1442,8 +1462,9 @@ class BasicInterpreter:
                 targetlineno = instr[1]
                 t = self.find_statement_index(all_statements,targetlineno)
                 if (t == None):
-                    print "Missing gosub target line at line:", lineno
-                    sys.exit(-1)
+                    print "MISSING GOSUB TARGET AT LINE:", lineno
+                    raise RuntimeError
+                
                 targetstatement = all_statements[t]
                 all_gosub_statements.append(statement) 
                 statement.successors.append(targetstatement)
@@ -1628,7 +1649,7 @@ class BasicInterpreter:
         self.loops = []            # Currently active loops
         self.loopend = {}            # Mapping saying where loops end
         self.looptarget = {}        # Mapping saying next line loops target
-        self.gosub = None           # Gosub return point (if any)
+        self.gosub = []          # Gosub return point (if any)
         self.error = 0              # Indicates program error
 
         self.stat = list(self.prog)  # Ordered list of all line numbers
@@ -1759,20 +1780,17 @@ class BasicInterpreter:
                 continue
             elif op == 'GOSUB':
                 newline = instr[1]
-                if self.gosub:
-                    print("ALREADY IN A SUBROUTINE AT LINE %s" % line)
-                    return
-                self.gosub = self.stat[self.pc]
+                self.gosub.append(self.stat[self.pc])
                 self.goto(newline)
                 continue
 
             elif op == 'RETURN':
-                if not self.gosub:
+                if (len(self.gosub) == 0):
                     print("RETURN WITHOUT A GOSUB AT LINE %s" % line)
                     return
-                self.goto(self.gosub)
-                self.gosub = None
-
+                returnTarget = self.gosub.pop()
+                self.goto(returnTarget)
+            
             elif op == 'FUNC':
                 fname = instr[1]
                 pname = instr[2]

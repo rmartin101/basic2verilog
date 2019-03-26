@@ -206,6 +206,11 @@ class BasicInterpreter:
             'FROMHEX': lambda z: int(self.eval(z),16)
         }
         self.inside_verilog_str = False
+
+        # these are for counting the number of assigment and number of
+        # reads from an expressions
+        self.total_assignments = 0
+        self.total_expr_reads = 0
         
     # Collect all data statements
     def collect_data(self):
@@ -256,6 +261,7 @@ class BasicInterpreter:
         elif etype == 'GROUP':
             return self.eval(expr[1])
         elif etype == 'UNARY':
+            self.total_expr_reads = self.total_expr_reads + 1
             if expr[1] == '-':
                 return -self.eval(expr[2])
             elif expr[1] == '~':
@@ -263,6 +269,7 @@ class BasicInterpreter:
             elif expr[1] == 'NOT':
                 return (not self.eval(expr[2]))
         elif etype == 'BINOP':
+            self.total_expr_reads = self.total_expr_reads + 2
             if expr[1] == '+':
                 return (self.eval(expr[2])) + (self.eval(expr[3]))
             elif expr[1] == '-':
@@ -486,6 +493,10 @@ class BasicInterpreter:
     # Assignment
     def assign(self, target, value):
         var, dim1, dim2 = target
+
+        self.total_assignments = self.total_assignments + 1
+        print "assignment from ",target , " to ", value
+        
         if not dim1 and not dim2:
             x = self.eval(value)
             if type(x) is int:
@@ -1001,11 +1012,11 @@ class BasicInterpreter:
             else:
                 pass
 
+
         # second pass: 
         # build a forward Statement-level Control FLow Graph 
         # also builds predecessor (backward) edges, except for
         # RETURN statements which require another pass
-
         for pc in range(len(self.stat)):
             lineno = self.stat[pc]   # line number in the program 
             instr = self.prog[lineno]
@@ -1559,7 +1570,7 @@ class BasicInterpreter:
                 if (len(s.successors) ==1) :
                     last_control_node.successors.append(s.successors[0].control_nodes[0])
                 else:
-                    print "Error,statement control node does not have sucessors :" + s.name + " " + last_control_node.name 
+                    print "Error,statement control node does not have successors :" + s.name + " " + last_control_node.name 
             else:
                 print "Error,statement types does not match known control node sequence"
 
@@ -1677,6 +1688,7 @@ class BasicInterpreter:
 
             # END and STOP statements
             if op == 'END' or op == 'STOP':
+                print "total assignments: %d expression reads: %d" % (self.total_assignments,self.total_expr_reads)
                 break           # We're done
         
 

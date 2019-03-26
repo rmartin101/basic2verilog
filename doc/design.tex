@@ -1,5 +1,71 @@
+\documentclass[10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{wrapfig}
+\geometry{legalpaper, portrait, margin=1in}
 
-This is where the design document goes.
+\title{Basic to Verilog Compiler }
+\author{Richard P Martin}
+\date{March 2019}
 
-This is still a work in progress.
+\usepackage{natbib}
+\usepackage{graphicx}
+
+\begin{document}
+
+\maketitle
+
+\section*{Abstract}
+
+This document describes the theory of the Basic to Verilog, {\em basic2verilog},compiler. The goal of the compiler to translate a program in BASIC to run on a a Verilog simulator. Using BASIC allows illustration of simple techniques to translate high level language (HLL) constructs into Verilog without getting bogged down in more advanced language constructs such as inheritance and reflection.
+
+In addition, the generated Verilog code should synthesize on an FPGA. This synthesis constraint means the Verilog code must follow the design style needed for code synthesis. 
+
+Basic2verilog is built using the PLY (Python Lex Yacc) compiler framework.~\cite{ply}.
+
+\section{Project Organization}
+
+\begin{verbatim} 
+
+  src/                   // source code for the Verilog Generator
+      basveri.py         // top level program which can either run the 
+                         // BASIC interpreter or generate Verilog
+      basic2verilog.py   // main python code that has an interpreter 
+                         // and Verilog generator
+
+      baspars.py         // Parser 
+      basiclex.py        // Lexical Analyzer                  
+
+  examples/              // Example Basic programs to illustrate PL techniques 
+      ifthen.bas         // Example of IF THEN ELSE
+      gosub.bas          // Example of GOSUB 
+      gosub2.bas         // Nested GOSUB
+      array.bas          // Uni-Dimensional Arrays 
+      dim.bas            // 2-Dimensionsal Arrays 
+      loop2.bas          // Nested Loops 
+
+  benchmarks/            // Benchmark programs to measure performance
+    
+  doc/                   // Documentation 
+      design.tex         // Theory and Design documentation
+
+\end{verbatim}
+
+
+\section{Theory Of Design}
+
+\subsection{Control and DataFlow}
+
+\section{Data Structures and Translation}
+
+\subsection{Parse Tree}
+
+\subsection{Statement Graph} 
+
+\subsection{Control Flow Graph}
+
+\bibliographystyle{plain}
+\bibliography{design.bib}
+\end{document}
+
 

@@ -11,9 +11,9 @@ BASIC = ../src/basveri.py
 VERILOG = /usr/local/bin/iverilog
 VPP = /usr/local/bin/vvp
 
-PROGS = array.v dim3.v bitwise.v array.vvp dim3.vvp bitwise.vvp 
+PROGS = gosub.v gosub.vvp gosub2.v gosub2.vvp array.v array.vvp dim3.v dim3.vvp bitwise.v bitwise.vvp 
 
-all: $(PROGS)
+all: $(PROGS) 
 
 %.v : %.bas
 	$(BASIC) -i $< -o $@

@@ -17,11 +17,30 @@
 
 \section*{Abstract}
 
-This document describes the theory of the Basic to Verilog, {\em basic2verilog},compiler. The goal of the compiler to translate a program in BASIC to run on a a Verilog simulator. Using BASIC allows illustration of simple techniques to translate high level language (HLL) constructs into Verilog without getting bogged down in more advanced language constructs such as inheritance and reflection.
 
-In addition, the generated Verilog code should synthesize on an FPGA. This synthesis constraint means the Verilog code must follow the design style needed for code synthesis. 
+The Basic to Verilog compiler, {\em basic2verilog} is an introduction
+to High Level Synthesis (HLS)  using the BASIC language. BASIC is a simple
+language, yet quite powerful in its ability to create meaningful
+programs by programmers with limited experience and modest computing
+infrastructure.
 
-Basic2verilog is built using the PLY (Python Lex Yacc) compiler framework.~\cite{ply}.
+The goal of the basic2verilog is to allow a BASIC program to run in a
+Verilog simulator using the {\em synthesizable} Verilog. It is 
+Verilog sub-set, and style of design, which can be efficiently realized on
+an FPGA. Using BASIC allows illustration of simple techniques without
+getting bogged down in more advanced language constructs such as
+inheritance and reflection.
+
+Restricting the target to synthesizable Verilog must numerous contrainsts
+on the architecture of the mapping but exposes the challenegs of
+FPGAs as a target. 
+For example, Verilog loops in synthesis create copies on the
+FPGA surface, they do not create a structure that results in
+repeated execution. Thus, other Verilog constructs must to used
+to realize looping as a repeated execution with uknown compile-time bounds. 
+
+Basic2verilog is built using the PLY (Python Lex Yacc) compiler framework.~\cite{ply}. This was done because PLY already had an BASIC interpreter and
+parser as examples. 
 
 \section{Project Organization}
 
@@ -40,7 +59,7 @@ Basic2verilog is built using the PLY (Python Lex Yacc) compiler framework.~\cite
       ifthen.bas         // Example of IF THEN ELSE
       gosub.bas          // Example of GOSUB 
       gosub2.bas         // Nested GOSUB
-      array.bas          // Uni-Dimensional Arrays 
+      array.bas          // Uni-Dimensional Array
       dim.bas            // 2-Dimensionsal Arrays 
       loop2.bas          // Nested Loops 
 
@@ -51,18 +70,66 @@ Basic2verilog is built using the PLY (Python Lex Yacc) compiler framework.~\cite
 
 \end{verbatim}
 
-
 \section{Theory Of Design}
+
+A BASIC program is parsed into a Abstract Syntax Tree (AST). The AST
+is built from lists-of-lists. The first 
 
 \subsection{Control and DataFlow}
 
+Control flow in the Verilog is represented as bit-vector (BV) rather than
+a program counter (PC). That is, each basic block is controled by a
+one-hot encoded bit. If the bit is '1', the block is executed.
+Using a BV needs more memory than a PC, but the upside is that
+it makes parallel realization much more straightforward. It also maps
+to FPGA block in a more natural format as each LUT can hold logic
+and a bit. 
+
+Writes to each variable are controlled by an {\tt always} statement
+per variable as well as a register or array.
+That is, each BASIC variable  maps to a combination of an
+{\tt always} block and the state maintaing the variable. The
+{\tt always} uses the control bits from the BV to arbitrate writes.
+That is, depending on which control bits are active, different
+
+Because synthesizable Verilog allows many readers on each clock tick,
+we reads do not require arbitration. 
+
+All writes use the 
+
 \section{Data Structures and Translation}
+
+
+This section describes the main data structures in the compiler:
+The parse tree, the statement graph, the control-flow graph, and
+the list of variables.
+
+\subsection{List of Variables}
+
+This is just a Python map of the list off all the variables with some
+simple typing information for the dimensions of arrays. Only 1D and 2D
+arrays are supported as these map directy to Verilog
 
 \subsection{Parse Tree}
 
+The parse tree holds a parsed representation of the BASIC code as a list
+of lists. Each statement is a node in the tree. Edges represent textual
+flow of the structure of the program, rather than control flow. 
+
 \subsection{Statement Graph} 
 
+The first pass over the parse tree produces a statement graph. Each node is of the statement type. Control flow is represented as edges in the statement graph
+as control flow between statements. There are different edge types for
+different types of control flow, for example the target of a {\tt gosub}
+or a {\tt for} statement. 
+
 \subsection{Control Flow Graph}
+
+The control flow graph (CFG) is a lower-level representation of the BASIC
+program than the statement graph. Each node represents a control point,
+such as the test of a loop condition, or a bubble needed post the store
+of a variable. 
+
 
 \bibliographystyle{plain}
 \bibliography{design.bib}
